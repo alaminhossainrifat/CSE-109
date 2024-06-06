@@ -9,10 +9,15 @@ struct Blood_Group {
     int quantity;
 };
 
+struct Blood_Package {
+    char Blood_Type[10];
+    int units;
+};
+
 void Add_Blood_Group(struct Blood_Group *Blood_Groups, int *count);
 void Delete_Blood_Group(struct Blood_Group *Blood_Groups, int *count, const char *Blood_Type);
 int Search_Blood_Group(struct Blood_Group *Blood_Groups, int count, const char *Blood_Type);
-void Create_Blood_Group_Package(struct Blood_Group *Blood_Groups, int count, const char *packageDetails);
+void Create_Blood_Group_Package(struct Blood_Group *Blood_Groups, int count);
 void Display_Blood_Groups(struct Blood_Group *Blood_Groups, int count);
 void Update_Blood_Quantity(struct Blood_Group *Blood_Groups, int count, const char *Blood_Type, int quantity);
 
@@ -64,7 +69,7 @@ int main() {
                 Update_Blood_Quantity(Blood_Groups, count, Blood_Type, quantity);
                 break;
             case 6:
-                Create_Blood_Group_Package(Blood_Groups, count, "PackageDetails");
+                Create_Blood_Group_Package(Blood_Groups, count);
                 break;
             case 7:
                 exit(0);
@@ -140,8 +145,31 @@ void Update_Blood_Quantity(struct Blood_Group *Blood_Groups, int count, const ch
     printf("Blood quantity updated successfully.\n");
 }
 
-// Blood Group Packages
-void Create_Blood_Group_Package(struct Blood_Group *Blood_Groups, int count, const char *packageDetails) {
-    printf("Creating blood group package: %s\n", packageDetails);
-    Display_Blood_Groups(Blood_Groups, count);
+// Create Blood Group Package
+void Create_Blood_Group_Package(struct Blood_Group *Blood_Groups, int count) {
+    int package_count;
+    printf("Enter the number of blood types in the package: ");
+    scanf("%d", &package_count);
+    struct Blood_Package package[package_count];
+
+    for (int i = 0; i < package_count; i++) {
+        printf("Enter blood type: ");
+        scanf("%s", package[i].Blood_Type);
+        printf("Enter number of units: ");
+        scanf("%d", &package[i].units);
+
+        int index = Search_Blood_Group(Blood_Groups, count, package[i].Blood_Type);
+        if (index == -1 || Blood_Groups[index].quantity < package[i].units) {
+            printf("Not enough units available for blood type %s.\n", package[i].Blood_Type);
+            return;
+        }
+    }
+
+    printf("Blood Group Package created successfully:\n");
+    for (int i = 0; i < package_count; i++) {
+        printf("Blood Type: %s, Units: %d\n", package[i].Blood_Type, package[i].units);
+        int index = Search_Blood_Group(Blood_Groups, count, package[i].Blood_Type);
+        Blood_Groups[index].quantity -= package[i].units;
+    }
 }
+
